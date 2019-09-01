@@ -8,8 +8,8 @@ model = load_model('my_model.h5')
 #total_train = num_of_students_in_class*70;
 #total_val = num_of_students_in_class*20;
 nClass = 4
-IMG_SHAPE = 400;
-BATCH_SIZE  = 8;
+IMG_SHAPE = 224;
+BATCH_SIZE  = 16;
 
 vid_cam = cv2.VideoCapture(0)
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')

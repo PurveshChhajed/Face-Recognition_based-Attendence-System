@@ -5,35 +5,40 @@ import cv2,os
 
 
 num_of_students_in_class = 4;
-total_train = num_of_students_in_class*95;
-total_val = num_of_students_in_class*25;
-IMG_SHAPE = 400;
+total_train = num_of_students_in_class*105;
+total_val = num_of_students_in_class*30;
+IMG_SHAPE = 224;
 BATCH_SIZE  = 8;
 image_gen_train = ImageDataGenerator(rescale=1./255,
-      #rotation_range=40,
-      #width_shift_range=0.1,
-      #height_shift_range=0.1,
+      width_shift_range=0.1,
+      height_shift_range=0.1,
       shear_range=0.15,
-      zoom_range=0.15)
-      #horizontal_flip=True,
-      #fill_mode='nearest')
+      #zoom_range=0.15,
+      zoom_range=[1.0,1.5],
+      horizontal_flip=True,
+      brightness_range=[0.2,1.0])
       
 train_data_gen = image_gen_train.flow_from_directory(directory='/home/yani/Documents/projects/Face-Recognition_based-Attendence-System/datagen/train',
                                                      batch_size=BATCH_SIZE,
                                                      shuffle=True, 
-                                                     color_mode='grayscale',
+                                                     color_mode='rgb',
                                                      target_size=(IMG_SHAPE,IMG_SHAPE),
                                                      class_mode='categorical',
                                                      seed =42)
 
 image_gen_val = ImageDataGenerator(rescale=1./255,
-                                   shear_range = 0.15,
-                                   zoom_range = 0.15)
+                                   width_shift_range=0.1,
+                                   height_shift_range=0.1,
+                                   shear_range=0.15,
+                                   #zoom_range=0.15,
+                                   zoom_range=[1.0,1.5],
+                                   horizontal_flip=True,
+                                   brightness_range=[0.2,1.0])
 
 val_data_gen = image_gen_val.flow_from_directory(directory='/home/yani/Documents/projects/Face-Recognition_based-Attendence-System/datagen/validate',            
                                                  batch_size=BATCH_SIZE,
                                                  shuffle=True,
-                                                 color_mode = 'grayscale',
+                                                 color_mode = 'rgb',
                                                  target_size=(IMG_SHAPE, IMG_SHAPE),
                                                  class_mode='categorical',
                                                  seed = 42)
@@ -44,12 +49,13 @@ from keras.layers import Conv2D, MaxPool2D, Dense, Flatten, Dropout
 from keras.applications.vgg16 import VGG16
 vgg16_model = VGG16()
 model = Sequential()
-for layer in vgg16_model.layers:
-    model.add(layer)
-model.layers.pop()
+for layer in vgg16_model.layers[:-1]:
+  model.add(layer)
+#model.layers.pop()  not working
+for layer in model.layers:
+  layer.trainable = False    
 model.add(Dense(4096, activation = "relu"))
 model.add(Dense(4, activation = "softmax"))
-
 # =============================================================================
 # model = Sequential([
 #     Conv2D(filters=32, kernel_size=(5,5), activation='relu', input_shape=(IMG_SHAPE,IMG_SHAPE,1)),
@@ -66,12 +72,10 @@ model.add(Dense(4, activation = "softmax"))
 #     Dense(num_of_students_in_class,activation='softmax')
 # ])
 # =============================================================================
-
 model.compile(optimizer='adam', 
               loss='categorical_crossentropy',
               metrics=['accuracy'])
-
-epochs=5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+epochs=15                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 history = model.fit_generator(
     train_data_gen,
     steps_per_epoch=int(np.ceil(total_train / float(BATCH_SIZE))),
@@ -101,3 +105,6 @@ plt.plot(epochs_range, val_loss, label='Validation Loss')
 plt.legend(loc='upper right')
 plt.title('Training and Validation Loss')
 plt.show()
+
+
+

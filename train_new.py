@@ -5,7 +5,7 @@ import cv2,os
 #from load_imgdata import load_data
 import sklearn
 
-IMG_SHAPE = 400
+IMG_SHAPE = 256
 nClass = 4
 BATCH_SIZE  = 8;
 x_train = np.load("x_train.npy")

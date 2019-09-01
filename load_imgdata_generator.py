@@ -53,8 +53,8 @@ for i in range(n):
             g+=1
         else:
             break
-      
-            
+
+                
 
    
 
